@@ -44,6 +44,19 @@ func main() {
 	// Endpoint health check untuk memastikan server hidup.
 	http.HandleFunc("/health", handlers.Health)
 
+	// Redirect /swagger ke /swagger/ agar path relatif di UI bekerja.
+	http.HandleFunc("/swagger", func(w http.ResponseWriter, r *http.Request) {
+		log.Printf("[flow-0] Swagger redirect method=%s path=%s", r.Method, r.URL.Path)
+		http.Redirect(w, r, "/swagger/", http.StatusMovedPermanently)
+	})
+
+	// Static file server untuk Swagger UI dan OpenAPI spec.
+	swaggerFiles := http.FileServer(http.Dir("swagger"))
+	http.Handle("/swagger/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		log.Printf("[flow-1] Swagger serve method=%s path=%s", r.Method, r.URL.Path)
+		http.StripPrefix("/swagger/", swaggerFiles).ServeHTTP(w, r)
+	}))
+
 	// Log sederhana saat server mulai jalan.
 	log.Printf("[flow-0] Server running di localhost:8080")
 

@@ -1,0 +1,214 @@
+openapi: 3.0.3
+info:
+  title: Kasir API
+  version: 1.0.0
+  description: API sederhana untuk data produk kasir.
+servers:
+  - url: http://localhost:8080
+paths:
+  /api/produk:
+    get:
+      summary: List semua produk
+      tags:
+        - Produk
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Produk'
+    post:
+      summary: Tambah produk baru
+      tags:
+        - Produk
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProdukInput'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Produk'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+  /api/produk/{id}:
+    get:
+      summary: Ambil produk berdasarkan ID
+      tags:
+        - Produk
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Produk'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+    put:
+      summary: Update produk berdasarkan ID
+      tags:
+        - Produk
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProdukInput'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Produk'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+    delete:
+      summary: Hapus produk berdasarkan ID
+      tags:
+        - Produk
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessMessage'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+  /health:
+    get:
+      summary: Cek status server
+      tags:
+        - Health
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Health'
+components:
+  schemas:
+    Produk:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+        nama:
+          type: string
+        harga:
+          type: integer
+          format: int32
+        stok:
+          type: integer
+          format: int32
+      required:
+        - id
+        - nama
+        - harga
+        - stok
+    ProdukInput:
+      type: object
+      properties:
+        nama:
+          type: string
+        harga:
+          type: integer
+          format: int32
+        stok:
+          type: integer
+          format: int32
+      required:
+        - nama
+        - harga
+        - stok
+    SuccessMessage:
+      type: object
+      properties:
+        message:
+          type: string
+      required:
+        - message
+    ErrorMessage:
+      type: object
+      properties:
+        message:
+          type: string
+      required:
+        - message
+    Health:
+      type: object
+      properties:
+        status:
+          type: string
+        message:
+          type: string
+      required:
+        - status
+        - message
