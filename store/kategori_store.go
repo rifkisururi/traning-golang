@@ -1,8 +1,8 @@
 package store
 
 import (
+	"kasir-api/models"
 	"sync"
-	"traning-golang/models"
 )
 
 // in-memory storage untuk kategori

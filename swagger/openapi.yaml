@@ -2,7 +2,7 @@ openapi: 3.0.3
 info:
   title: Kasir API
   version: 1.0.0
-  description: API sederhana untuk data produk kasir.
+  description: API sederhana untuk data produk dan kategori kasir.
 servers:
   - url: http://localhost:8080
 paths:
@@ -140,6 +140,140 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorMessage'
+  /api/kategori:
+    get:
+      summary: List semua kategori
+      tags:
+        - Kategori
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Kategori'
+    post:
+      summary: Tambah kategori baru
+      tags:
+        - Kategori
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/KategoriInput'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessMessage'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+  /api/kategori/{id}:
+    get:
+      summary: Ambil kategori berdasarkan ID
+      tags:
+        - Kategori
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Kategori'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+    put:
+      summary: Update kategori berdasarkan ID
+      tags:
+        - Kategori
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/KategoriInput'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessMessage'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+    delete:
+      summary: Hapus kategori berdasarkan ID
+      tags:
+        - Kategori
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessMessage'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
   /health:
     get:
       summary: Cek status server
@@ -154,6 +288,29 @@ paths:
                 $ref: '#/components/schemas/Health'
 components:
   schemas:
+    Kategori:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+        nama:
+          type: string
+        deskripsi:
+          type: string
+      required:
+        - id
+        - nama
+        - deskripsi
+    KategoriInput:
+      type: object
+      properties:
+        nama:
+          type: string
+        deskripsi:
+          type: string
+      required:
+        - nama
     Produk:
       type: object
       properties:

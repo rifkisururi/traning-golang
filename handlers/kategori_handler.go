@@ -6,8 +6,9 @@ import (
 	"log"
 	"net/http"
 	"strconv"
-	"traning-golang/models"
-	"traning-golang/store"
+
+	"kasir-api/models"
+	"kasir-api/store"
 )
 
 // GetKategoriHandler mengambil semua kategori
