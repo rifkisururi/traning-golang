@@ -41,6 +41,34 @@ func main() {
 		}
 	})
 
+	// Endpoint untuk operasi kategori berdasarkan ID (GET/PUT/DELETE).
+	http.HandleFunc("/api/kategori/", func(w http.ResponseWriter, r *http.Request) {
+		switch r.Method {
+		case http.MethodGet:
+			handlers.GetKategoriByIDHandler(w, r)
+		case http.MethodPut:
+			handlers.UpdateKategoriHandler(w, r)
+		case http.MethodDelete:
+			handlers.DeleteKategoriHandler(w, r)
+		default:
+			log.Printf("[flow-0] Method not allowed method=%s path=%s", r.Method, r.URL.Path)
+			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		}
+	})
+
+	// Endpoint koleksi kategori (GET semua, POST tambah).
+	http.HandleFunc("/api/kategori", func(w http.ResponseWriter, r *http.Request) {
+		switch r.Method {
+		case http.MethodGet:
+			handlers.GetKategoriHandler(w, r)
+		case http.MethodPost:
+			handlers.CreateKategoriHandler(w, r)
+		default:
+			log.Printf("[flow-0] Method not allowed method=%s path=%s", r.Method, r.URL.Path)
+			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		}
+	})
+
 	// Endpoint health check untuk memastikan server hidup.
 	http.HandleFunc("/health", handlers.Health)
 
