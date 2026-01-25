@@ -1,15 +1,15 @@
 package store
 
 import (
-	"traning-golang/models"
 	"sync"
+	"traning-golang/models"
 )
 
 // in-memory storage untuk kategori
 var (
-	kategori     []models.Kategori
+	kategori       []models.Kategori
 	kategoriNextID int = 1
-	kategoriMutex   sync.RWMutex
+	kategoriMutex  sync.RWMutex
 )
 
 // init menginisialisasi data dummy kategori
