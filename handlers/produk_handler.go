@@ -144,15 +144,17 @@ func CreateProduk(w http.ResponseWriter, r *http.Request) {
 	}
 	log.Printf("[flow-3] CreateProduk decoded nama=%s harga=%d stok=%d", produkBaru.Nama, produkBaru.Harga, produkBaru.Stok)
 
-	// Buat ID baru dan simpan ke store.
-	produkBaru.ID = store.NextID()
-	log.Printf("[flow-4] CreateProduk next id=%d", produkBaru.ID)
-	log.Printf("[flow-5] CreateProduk call store.Add id=%d", produkBaru.ID)
-	created := store.Add(produkBaru)
+	// Simpan ke store dan dapatkan ID dari database.
+	log.Printf("[flow-4] CreateProduk call store.Add")
+	created, err := store.Add(produkBaru)
+	if err != nil {
+		log.Printf("[flow-5] CreateProduk add failed err=%v", err)
+		http.Error(w, "Gagal menambahkan produk", http.StatusInternalServerError)
+		return
+	}
 
 	// Kirim data yang baru dibuat.
-	log.Printf("[flow-6] CreateProduk created id=%d", created.ID)
-
+	log.Printf("[flow-5] CreateProduk created id=%d", created.ID)
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)

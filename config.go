@@ -12,6 +12,24 @@ import (
 type Config struct {
 	Host string
 	Port string
+
+	// Database configuration
+	DBHost     string
+	DBPort     string
+	DBUser     string
+	DBPassword string
+	DBName     string
+	DBSSLMode  string
+}
+
+// GetDBConnectionString mengembalikan connection string untuk PostgreSQL
+func (c *Config) GetDBConnectionString() string {
+	return "host=" + c.DBHost +
+		" port=" + c.DBPort +
+		" user=" + c.DBUser +
+		" password=" + c.DBPassword +
+		" dbname=" + c.DBName +
+		" sslmode=" + c.DBSSLMode
 }
 
 // LoadConfig memuat konfigurasi dari environment variables atau file .env
@@ -22,6 +40,14 @@ func LoadConfig() *Config {
 	// Set default values
 	v.SetDefault("HOST", "localhost")
 	v.SetDefault("PORT", "8080")
+
+	// Database default values
+	v.SetDefault("DB_HOST", "localhost")
+	v.SetDefault("DB_PORT", "5432")
+	v.SetDefault("DB_USER", "postgres")
+	v.SetDefault("DB_PASSWORD", "")
+	v.SetDefault("DB_NAME", "kasir_db")
+	v.SetDefault("DB_SSLMODE", "disable")
 
 	// Konfigurasi untuk membaca file .env
 	v.SetConfigName(".env")
@@ -47,14 +73,27 @@ func LoadConfig() *Config {
 	// Bind environment variables
 	v.BindEnv("HOST")
 	v.BindEnv("PORT")
+	v.BindEnv("DB_HOST")
+	v.BindEnv("DB_PORT")
+	v.BindEnv("DB_USER")
+	v.BindEnv("DB_PASSWORD")
+	v.BindEnv("DB_NAME")
+	v.BindEnv("DB_SSLMODE")
 
 	// Membaca konfigurasi
 	config := &Config{
-		Host: v.GetString("HOST"),
-		Port: v.GetString("PORT"),
+		Host:       v.GetString("HOST"),
+		Port:       v.GetString("PORT"),
+		DBHost:     v.GetString("DB_HOST"),
+		DBPort:     v.GetString("DB_PORT"),
+		DBUser:     v.GetString("DB_USER"),
+		DBPassword: v.GetString("DB_PASSWORD"),
+		DBName:     v.GetString("DB_NAME"),
+		DBSSLMode:  v.GetString("DB_SSLMODE"),
 	}
 
 	log.Printf("[config] Konfigurasi dimuat - Host: %s, Port: %s", config.Host, config.Port)
+	log.Printf("[config] Database - Host: %s, Port: %s, DB: %s", config.DBHost, config.DBPort, config.DBName)
 
 	return config
 }

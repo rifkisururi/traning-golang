@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 
+	"kasir-api/database"
 	"kasir-api/handlers"
 )
 
@@ -15,6 +16,13 @@ func main() {
 
 	// Load konfigurasi dari environment variables atau file .env
 	config := LoadConfig()
+
+	// Koneksi ke database
+	err := database.ConnectDatabase(config.GetDBConnectionString())
+	if err != nil {
+		log.Fatalf("[main] Gagal koneksi ke database: %v", err)
+	}
+	defer database.CloseDatabase()
 
 	// Endpoint untuk operasi berdasarkan ID (GET/PUT/DELETE).
 	http.HandleFunc("/api/produk/", func(w http.ResponseWriter, r *http.Request) {
@@ -93,7 +101,7 @@ func main() {
 
 	// Jalankan HTTP server dengan konfigurasi dari env atau .env
 	addr := config.Host + ":" + config.Port
-	err := http.ListenAndServe(addr, nil)
+	err = http.ListenAndServe(addr, nil)
 	if err != nil {
 		// Tampilkan error jika server gagal start.
 		log.Printf("[flow-0] gagal running server: %v", err)

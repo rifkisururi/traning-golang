@@ -1,96 +1,96 @@
 package store
 
 import (
+	"database/sql"
+	"log"
+
+	"kasir-api/database"
 	"kasir-api/models"
-	"sync"
 )
-
-// in-memory storage untuk kategori
-var (
-	kategori       []models.Kategori
-	kategoriNextID int = 1
-	kategoriMutex  sync.RWMutex
-)
-
-// init menginisialisasi data dummy kategori
-func init() {
-	kategori = []models.Kategori{
-		{ID: 1, Nama: "Makanan", Deskripsi: "Kategori untuk produk makanan"},
-		{ID: 2, Nama: "Minuman", Deskripsi: "Kategori untuk produk minuman"},
-		{ID: 3, Nama: "Bumbu Dapur", Deskripsi: "Kategori untuk bumbu dan rempah"},
-	}
-	kategoriNextID = 4
-}
 
 // GetAllKategori mengembalikan semua kategori
 func GetAllKategori() []models.Kategori {
-	kategoriMutex.RLock()
-	defer kategoriMutex.RUnlock()
+	rows, err := database.DB.Query("SELECT id, nama, deskripsi FROM kategori ORDER BY id")
+	if err != nil {
+		log.Printf("[kategori-store] Error GetAllKategori: %v", err)
+		return []models.Kategori{}
+	}
+	defer rows.Close()
 
-	// Buat copy untuk mencegah mutation dari luar
-	result := make([]models.Kategori, len(kategori))
-	copy(result, kategori)
-	return result
+	var kategori []models.Kategori
+	for rows.Next() {
+		var k models.Kategori
+		if err := rows.Scan(&k.ID, &k.Nama, &k.Deskripsi); err != nil {
+			log.Printf("[kategori-store] Error scanning row: %v", err)
+			continue
+		}
+		kategori = append(kategori, k)
+	}
+
+	if err := rows.Err(); err != nil {
+		log.Printf("[kategori-store] Error iterating rows: %v", err)
+	}
+
+	return kategori
 }
 
 // GetKategoriByID mencari kategori berdasarkan ID
 func GetKategoriByID(id int) (models.Kategori, bool) {
-	kategoriMutex.RLock()
-	defer kategoriMutex.RUnlock()
+	var k models.Kategori
+	err := database.DB.QueryRow("SELECT id, nama, deskripsi FROM kategori WHERE id = $1", id).
+		Scan(&k.ID, &k.Nama, &k.Deskripsi)
 
-	for _, k := range kategori {
-		if k.ID == id {
-			return k, true
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return models.Kategori{}, false
 		}
+		log.Printf("[kategori-store] Error GetKategoriByID: %v", err)
+		return models.Kategori{}, false
 	}
-	return models.Kategori{}, false
+
+	return k, true
 }
 
-// GetKategoriNextID mengembalikan ID berikutnya untuk kategori baru
-func GetKategoriNextID() int {
-	kategoriMutex.Lock()
-	defer kategoriMutex.Unlock()
+// AddKategori menambahkan kategori baru dan mengembalikan kategori dengan ID
+func AddKategori(k models.Kategori) (models.Kategori, error) {
+	err := database.DB.QueryRow(
+		"INSERT INTO kategori (nama, deskripsi) VALUES ($1, $2) RETURNING id",
+		k.Nama, k.Deskripsi,
+	).Scan(&k.ID)
 
-	id := kategoriNextID
-	kategoriNextID++
-	return id
-}
+	if err != nil {
+		log.Printf("[kategori-store] Error AddKategori: %v", err)
+		return models.Kategori{}, err
+	}
 
-// AddKategori menambahkan kategori baru
-func AddKategori(k models.Kategori) {
-	kategoriMutex.Lock()
-	defer kategoriMutex.Unlock()
-
-	k.ID = GetKategoriNextID()
-	kategori = append(kategori, k)
+	return k, nil
 }
 
 // UpdateKategori mengupdate kategori yang sudah ada
 func UpdateKategori(id int, updated models.Kategori) bool {
-	kategoriMutex.Lock()
-	defer kategoriMutex.Unlock()
+	result, err := database.DB.Exec(
+		"UPDATE kategori SET nama = $1, deskripsi = $2 WHERE id = $3",
+		updated.Nama, updated.Deskripsi, id,
+	)
 
-	for i, k := range kategori {
-		if k.ID == id {
-			updated.ID = id
-			kategori[i] = updated
-			return true
-		}
+	if err != nil {
+		log.Printf("[kategori-store] Error UpdateKategori: %v", err)
+		return false
 	}
-	return false
+
+	rowsAffected, _ := result.RowsAffected()
+	return rowsAffected > 0
 }
 
 // DeleteKategori menghapus kategori berdasarkan ID
 func DeleteKategori(id int) bool {
-	kategoriMutex.Lock()
-	defer kategoriMutex.Unlock()
+	result, err := database.DB.Exec("DELETE FROM kategori WHERE id = $1", id)
 
-	for i, k := range kategori {
-		if k.ID == id {
-			// Delete dengan menghapus elemen dari slice
-			kategori = append(kategori[:i], kategori[i+1:]...)
-			return true
-		}
+	if err != nil {
+		log.Printf("[kategori-store] Error DeleteKategori: %v", err)
+		return false
 	}
-	return false
+
+	rowsAffected, _ := result.RowsAffected()
+	return rowsAffected > 0
 }

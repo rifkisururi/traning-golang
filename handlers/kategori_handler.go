@@ -102,13 +102,19 @@ func CreateKategoriHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	log.Printf("[flow-6] Menambahkan kategori baru: %s", kategori.Nama)
-	store.AddKategori(kategori)
+	createdKategori, err := store.AddKategori(kategori)
+	if err != nil {
+		log.Printf("[flow-7] Error: Gagal menambahkan kategori - %v", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		json.NewEncoder(w).Encode(map[string]string{
+			"error": "Gagal menambahkan kategori",
+		})
+		return
+	}
 
 	log.Println("[flow-7] Kategori berhasil ditambahkan")
 	w.WriteHeader(http.StatusCreated)
-	json.NewEncoder(w).Encode(map[string]string{
-		"message": "Kategori berhasil ditambahkan",
-	})
+	json.NewEncoder(w).Encode(createdKategori)
 }
 
 // UpdateKategoriHandler mengupdate kategori yang sudah ada
