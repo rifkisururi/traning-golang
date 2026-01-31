@@ -13,6 +13,9 @@ func main() {
 	// Atur format log agar urutan waktu terlihat jelas.
 	log.SetFlags(log.LstdFlags | log.Lmicroseconds)
 
+	// Load konfigurasi dari environment variables atau file .env
+	config := LoadConfig()
+
 	// Endpoint untuk operasi berdasarkan ID (GET/PUT/DELETE).
 	http.HandleFunc("/api/produk/", func(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {
@@ -86,10 +89,11 @@ func main() {
 	}))
 
 	// Log sederhana saat server mulai jalan.
-	log.Printf("[flow-0] Server running di localhost:8080")
+	log.Printf("[flow-0] Server running di %s:%s", config.Host, config.Port)
 
-	// Jalankan HTTP server pada port 8080.
-	err := http.ListenAndServe(":8080", nil)
+	// Jalankan HTTP server dengan konfigurasi dari env atau .env
+	addr := config.Host + ":" + config.Port
+	err := http.ListenAndServe(addr, nil)
 	if err != nil {
 		// Tampilkan error jika server gagal start.
 		log.Printf("[flow-0] gagal running server: %v", err)
