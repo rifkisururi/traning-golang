@@ -80,6 +80,31 @@ func main() {
 		}
 	})
 
+	// Endpoint checkout (POST).
+	http.HandleFunc("/api/checkout", handlers.HandleCheckout)
+
+	// Endpoint untuk operasi transaksi berdasarkan ID (GET).
+	http.HandleFunc("/api/transaction/", func(w http.ResponseWriter, r *http.Request) {
+		switch r.Method {
+		case http.MethodGet:
+			handlers.GetTransactionByID(w, r)
+		default:
+			log.Printf("[flow-0] Method not allowed method=%s path=%s", r.Method, r.URL.Path)
+			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		}
+	})
+
+	// Endpoint koleksi transaksi (GET semua).
+	http.HandleFunc("/api/transaction", func(w http.ResponseWriter, r *http.Request) {
+		switch r.Method {
+		case http.MethodGet:
+			handlers.GetAllTransactions(w, r)
+		default:
+			log.Printf("[flow-0] Method not allowed method=%s path=%s", r.Method, r.URL.Path)
+			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		}
+	})
+
 	// Endpoint health check untuk memastikan server hidup.
 	http.HandleFunc("/health", handlers.Health)
 

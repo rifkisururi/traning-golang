@@ -8,9 +8,19 @@ import (
 	"kasir-api/models"
 )
 
-// GetAll mengembalikan semua data produk.
-func GetAll() []models.Produk {
-	rows, err := database.DB.Query("SELECT id, nama, harga, stok, kategori_id FROM produk ORDER BY id")
+// GetAll mengembalikan semua data produk dengan filter nama (opsional).
+func GetAll(nameFilter string) []models.Produk {
+	query := "SELECT id, nama, harga, stok, kategori_id FROM produk"
+	args := []interface{}{}
+
+	if nameFilter != "" {
+		query += " WHERE nama ILIKE $1"
+		args = append(args, "%"+nameFilter+"%")
+	}
+
+	query += " ORDER BY id"
+
+	rows, err := database.DB.Query(query, args...)
 	if err != nil {
 		log.Printf("[produk-store] Error GetAll: %v", err)
 		return []models.Produk{}

@@ -120,10 +120,14 @@ func ListProduk(w http.ResponseWriter, r *http.Request) {
 	// Log langkah alur data untuk request ini.
 	log.Printf("[flow-1] ListProduk start method=%s path=%s", r.Method, r.URL.Path)
 
-	// Ambil seluruh data produk lalu kirim sebagai JSON.
-	log.Printf("[flow-2] ListProduk call store.GetAll")
-	data := store.GetAll()
-	log.Printf("[flow-3] ListProduk total=%d", len(data))
+	// Ambil query parameter name untuk pencarian.
+	name := r.URL.Query().Get("name")
+	log.Printf("[flow-2] ListProduk name filter=%q", name)
+
+	// Ambil data produk dengan filter nama lalu kirim sebagai JSON.
+	log.Printf("[flow-3] ListProduk call store.GetAll")
+	data := store.GetAll(name)
+	log.Printf("[flow-4] ListProduk total=%d", len(data))
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(data)
 }
