@@ -10,7 +10,7 @@ import (
 
 // GetAll mengembalikan semua data produk.
 func GetAll() []models.Produk {
-	rows, err := database.DB.Query("SELECT id, nama, harga, stok FROM produk ORDER BY id")
+	rows, err := database.DB.Query("SELECT id, nama, harga, stok, kategori_id FROM produk ORDER BY id")
 	if err != nil {
 		log.Printf("[produk-store] Error GetAll: %v", err)
 		return []models.Produk{}
@@ -20,7 +20,7 @@ func GetAll() []models.Produk {
 	var produk []models.Produk
 	for rows.Next() {
 		var p models.Produk
-		if err := rows.Scan(&p.ID, &p.Nama, &p.Harga, &p.Stok); err != nil {
+		if err := rows.Scan(&p.ID, &p.Nama, &p.Harga, &p.Stok, &p.KategoriID); err != nil {
 			log.Printf("[produk-store] Error scanning row: %v", err)
 			continue
 		}
@@ -37,8 +37,8 @@ func GetAll() []models.Produk {
 // GetByID mengembalikan satu produk berdasarkan ID.
 func GetByID(id int) (models.Produk, bool) {
 	var p models.Produk
-	err := database.DB.QueryRow("SELECT id, nama, harga, stok FROM produk WHERE id = $1", id).
-		Scan(&p.ID, &p.Nama, &p.Harga, &p.Stok)
+	err := database.DB.QueryRow("SELECT id, nama, harga, stok, kategori_id FROM produk WHERE id = $1", id).
+		Scan(&p.ID, &p.Nama, &p.Harga, &p.Stok, &p.KategoriID)
 
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -54,8 +54,8 @@ func GetByID(id int) (models.Produk, bool) {
 // Add menambahkan produk baru ke penyimpanan dan mengembalikan produk dengan ID
 func Add(p models.Produk) (models.Produk, error) {
 	err := database.DB.QueryRow(
-		"INSERT INTO produk (nama, harga, stok) VALUES ($1, $2, $3) RETURNING id",
-		p.Nama, p.Harga, p.Stok,
+		"INSERT INTO produk (nama, harga, stok, kategori_id) VALUES ($1, $2, $3, $4) RETURNING id",
+		p.Nama, p.Harga, p.Stok, p.KategoriID,
 	).Scan(&p.ID)
 
 	if err != nil {
@@ -69,8 +69,8 @@ func Add(p models.Produk) (models.Produk, error) {
 // Update mengganti data produk berdasarkan ID.
 func Update(id int, p models.Produk) (models.Produk, bool) {
 	result, err := database.DB.Exec(
-		"UPDATE produk SET nama = $1, harga = $2, stok = $3 WHERE id = $4",
-		p.Nama, p.Harga, p.Stok, id,
+		"UPDATE produk SET nama = $1, harga = $2, stok = $3, kategori_id = $4 WHERE id = $5",
+		p.Nama, p.Harga, p.Stok, p.KategoriID, id,
 	)
 
 	if err != nil {

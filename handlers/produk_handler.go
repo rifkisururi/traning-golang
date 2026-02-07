@@ -67,7 +67,7 @@ func UpdateProduk(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Invalid request", http.StatusBadRequest)
 		return
 	}
-	log.Printf("[flow-5] UpdateProduk decoded nama=%s harga=%d stok=%d", produkUpdate.Nama, produkUpdate.Harga, produkUpdate.Stok)
+	log.Printf("[flow-5] UpdateProduk decoded nama=%s harga=%d stok=%d kategori_id=%d", produkUpdate.Nama, produkUpdate.Harga, produkUpdate.Stok, produkUpdate.KategoriID)
 
 	// Update data di store dan kirim hasilnya.
 	log.Printf("[flow-6] UpdateProduk call store.Update id=%d", id)
@@ -142,7 +142,7 @@ func CreateProduk(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Invalid request", http.StatusBadRequest)
 		return
 	}
-	log.Printf("[flow-3] CreateProduk decoded nama=%s harga=%d stok=%d", produkBaru.Nama, produkBaru.Harga, produkBaru.Stok)
+	log.Printf("[flow-3] CreateProduk decoded nama=%s harga=%d stok=%d kategori_id=%d", produkBaru.Nama, produkBaru.Harga, produkBaru.Stok, produkBaru.KategoriID)
 
 	// Simpan ke store dan dapatkan ID dari database.
 	log.Printf("[flow-4] CreateProduk call store.Add")

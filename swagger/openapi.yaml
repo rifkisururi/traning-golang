@@ -3,8 +3,6 @@ info:
   title: Kasir API
   version: 1.0.0
   description: API sederhana untuk data produk dan kategori kasir.
-servers:
-  - url: http://localhost:8080
 paths:
   /api/produk:
     get:
