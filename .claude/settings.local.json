@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(PGPASSWORD=npg_IuEdFJ37pvWj psql:*)",
+      "Bash(go run:*)"
+    ]
+  }
+}
